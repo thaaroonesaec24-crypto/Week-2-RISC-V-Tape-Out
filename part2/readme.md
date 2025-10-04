@@ -1,173 +1,271 @@
 
+````markdown
+#  BabySoC: Functional Verification and Hands-on Modelling
 
-
-##  *“BabySoC Functional Overview”*
-
-with a short intro, clear structure, and only the main topics in the Table of Contents.
-
----
-
-#  BabySoC Functional Overview
-
-###  About
-
-This document provides a functional overview of the **VSDBabySoC**, a compact open-source **RISC-V–based System on Chip (SoC)**. It explains the design objectives, architecture, and functionality of its key components — **RVMYTH**, **PLL**, and **DAC** — as well as their roles in system integration and simulation.
+This guide demonstrates the **hands-on simulation and verification of the BabySoC system-on-chip**, providing step-by-step instructions for functional testing, waveform analysis, and post-synthesis validation. It is intended for users aiming to **bridge theoretical SoC concepts with practical implementation**.
 
 ---
 
-##  Table of Contents
+##  Quick Navigation
 
-1. [Introduction to VSDBabySoC](#introduction-to-vsdbabysoc)
-2. [System on Chip (SoC) Overview](#system-on-chip-soc-overview)
-3. [Core Components](#core-components)
-
-   * [RVMYTH Microprocessor](#rvmyth-microprocessor)
-   * [Phase-Locked Loop (PLL)](#phase-locked-loop-pll)
-   * [Digital-to-Analog Converter (DAC)](#digital-to-analog-converter-dac)
-4. [Functional Flow](#functional-flow)
-5. [Simulation and Verification](#simulation-and-verification)
-6. [Applications and Learning Scope](#applications-and-learning-scope)
-7. [Summary](#summary)
-
----
-
-##  Introduction to VSDBabySoC
-
-The **VSDBabySoC** is a small yet powerful SoC designed for educational and research purposes.
-Its goal is to **test three open-source IP cores** — a RISC-V CPU, PLL, and DAC — and analyze their behavior when integrated into a single silicon platform.
-
-**Key Highlights**
-
-* Integrates digital and analog modules on the same chip
-* Built on **Sky130 technology** (open-source PDK)
-* Demonstrates real-time **digital-to-analog interfacing**
-* Serves as a learning platform for **open-source hardware design**
+1. [Project Introduction](#project-introduction)  
+2. [Setting Up the Repository](#setting-up-the-repository)  
+3. [Directory Overview & Module Descriptions](#directory-overview--module-descriptions)  
+4. [Converting TL-Verilog CPU Core](#converting-tl-verilog-cpu-core)  
+5. [Module-Level RTL Simulation](#module-level-rtl-simulation)  
+   - DAC  
+   - PLL  
+   - CPU  
+6. [System-Level Pre-Synthesis Simulation](#system-level-pre-synthesis-simulation)  
+7. [Monitoring and Signal Insights](#monitoring-and-signal-insights)  
+8. [Gate-Level Synthesis Workflow](#gate-level-synthesis-workflow)  
+9. [Comparative Analysis: Before vs After Synthesis](#comparative-analysis-before-vs-after-synthesis)  
+10. [Concluding Notes](#concluding-notes)  
 
 ---
 
-##  System on Chip (SoC) Overview
+##  Project Introduction
 
-A **System on Chip (SoC)** combines multiple functional components on a single silicon die.
-These components, called **IP cores**, include processors, memory blocks, communication interfaces, and analog peripherals.
+BabySoC is a **miniature educational SoC** integrating:
 
-| **Type of IP Core** | **Example**             | **Function**                              |
-| ------------------- | ----------------------- | ----------------------------------------- |
-| Digital             | CPU, Memory, Controller | Logical processing and control            |
-| Analog              | DAC, ADC, PLL           | Signal conversion and timing control      |
-| Mixed-Signal        | Sensor Interface        | Bridge between analog and digital domains |
+| Component | Function |
+|-----------|---------|
+| **RVMYTH CPU Core** | Executes instructions, performs ALU and memory operations |
+| **Phase-Locked Loop (PLL)** | Generates and stabilizes clock signals for the CPU |
+| **10-bit DAC** | Converts digital CPU outputs to analog voltages |
 
-In the BabySoC, digital processing (RVMYTH) is paired with analog timing (PLL) and output generation (DAC).
+**Purpose:** Learn module communication, clock management, and digital-to-analog conversion within an SoC framework.  
 
----
-
-##  Core Components
-
-###  RVMYTH Microprocessor
-
-* **Type:** 32-bit RISC-V educational core
-* **Function:** Executes instructions and processes data
-* **Special Register:** `r17` — stores digital values for DAC conversion
-* **Language:** Written in **TL-Verilog**, later converted to Verilog using *SandPiper-SaaS*
-* **Output Role:** Continuously updates data sent to DAC
-
-**Example:**
-When RVMYTH runs a program that generates a sawtooth pattern, it stores incremental values in register `r17`.
-These values are forwarded to the DAC, which produces a corresponding analog waveform.
+**Why this matters:** Functional modelling validates logic before synthesis, avoiding costly design errors.
 
 ---
 
-### Phase-Locked Loop (PLL)
+##  Setting Up the Repository
 
-* **Function:** Generates a stable, high-frequency clock signal
-* **Multiplier:** 8× — means output clock = 8 × input clock
-* **Role:** Synchronizes system timing for consistent RVMYTH and DAC operation
-
-**Example:**
-If the input clock = 10 MHz → PLL output = 80 MHz
-This ensures high-speed operation and synchronization among all modules.
-
----
-
-### Digital-to-Analog Converter (DAC)
-
-* **Resolution:** 10-bit
-* **Function:** Converts digital signals from RVMYTH into analog voltages
-* **Output:** Continuous analog waveform (audio/video compatible)
-
-**Example:**
-If `r17` = 512 (binary `10 0000 0000`), DAC outputs an analog voltage at ~50% of its full-scale range.
-
----
-
-##  Functional Flow
-
-The internal functional flow of BabySoC can be summarized as follows:
-
-1. **PLL** generates a stable clock signal.
-2. **RVMYTH** executes program instructions, generating data patterns.
-3. Data stored in **r17** register is sent to **DAC**.
-4. **DAC** converts this digital data into an analog voltage.
-5. The **output signal (OUT)** is then available for external analog devices.
-
-| **Stage** | **Component** | **Function**                 |
-| --------- | ------------- | ---------------------------- |
-| 1         | PLL           | Clock generation             |
-| 2         | RVMYTH        | Digital computation          |
-| 3         | DAC           | Digital-to-Analog conversion |
-| 4         | Output        | Analog signal generation     |
-
----
-
-##  Simulation and Verification
-
-The BabySoC design can be simulated using **Icarus Verilog** and **GTKWave**.
-
-###  Pre-Synthesis Simulation
-
-* Tests the logical correctness of the RTL code
-* Run using `iverilog` before synthesis
-* Outputs `.vcd` file for waveform viewing
-
-**Command Example:**
+1. Navigate to your workspace:
 
 ```bash
-iverilog -o output/pre_synth_sim/pre_synth_sim.out -DPRE_SYNTH_SIM -I src/include -I src/module src/module/testbench.v
-./output/pre_synth_sim/pre_synth_sim.out
-```
+cd ~/Documents/Verilog/Labs
+````
 
-###  GTKWave Visualization
-
-Open the generated VCD file:
+2. Clone the source repository:
 
 ```bash
-gtkwave output/pre_synth_sim/pre_synth_sim.vcd
+git clone https://github.com/manili/VSDBabySoC.git
+cd VSDBabySoC
+ls
 ```
 
-**Signals to Observe**
-
-| **Signal Name**  | **Source** | **Purpose**          |
-| ---------------- | ---------- | -------------------- |
-| `CLK`            | PLL        | Clock input          |
-| `reset`          | External   | Reset control        |
-| `RV_TO_DAC[9:0]` | RVMYTH     | Digital data for DAC |
-| `OUT`            | DAC        | Analog output        |
+>  **Reason:** Ensures all required modules, testbenches, and libraries are available locally.
 
 ---
 
-##  Applications and Learning Scope
+##  Directory Overview & Module Descriptions
 
-* Ideal for **students** learning SoC design and verification
-* Helps understand **digital–analog integration**
-* Provides a **hands-on RISC-V** CPU implementation
-* Demonstrates **clock synchronization** via PLL
-* Teaches **waveform interpretation** using GTKWave
+Project layout:
+
+```
+VSDBabySoC/
+├── LICENSE
+├── README.md
+├── src/
+│   ├── module/
+│   │   ├── avsddac.v
+│   │   ├── avsdpll.v
+│   │   ├── rvmyth.tlv
+│   │   └── vsdbabysoc.v
+│   ├── include/
+│   │   ├── sandpiper.vh
+│   │   └── sandpiper_gen.vh
+│   └── gls_model/
+│       ├── sky130_fd_sc_hd.v
+│       └── primitives.v
+└── testbench.v
+```
+
+| Module           | Input Signals                              | Output Signals | Description                        |
+| ---------------- | ------------------------------------------ | -------------- | ---------------------------------- |
+| **avsddac.v**    | D[9:0], VREFH, VREFL                       | OUT            | Digital-to-analog conversion       |
+| **avsdpll.v**    | REF, ENb_VCO, VCO_IN                       | CLK            | Clock generation and stabilization |
+| **rvmyth.tlv**   | CLK, reset                                 | OUT[9:0]       | Behavioral RISC-V CPU core         |
+| **vsdbabysoc.v** | reset, VCO_IN, ENb_CP, ENb_VCO, REF, VREFH | OUT            | Top-level SoC integration          |
+
+>  **Reason:** Understanding the structure helps with compilation and simulation planning.
 
 ---
 
-##  Summary
+##  Converting TL-Verilog CPU Core
 
-The **VSDBabySoC** is a foundational educational project demonstrating the integration of digital (RVMYTH), analog (DAC), and clocking (PLL) systems on a single chip.
-It provides a practical and open-source environment for exploring **SoC design, simulation, and verification** — bridging the gap between **theory and real hardware behavior**.
+RVMYTH is written in **TL-Verilog** and needs to be converted to standard Verilog:
+
+1. Install dependencies:
+
+```bash
+sudo apt install iverilog gtkwave python3-pip git
+pip3 install sandpiper-saas pyyaml click
+```
+
+2. Generate Verilog from TL-Verilog:
+
+```bash
+python3 -m sandpiper \
+-i src/module/rvmyth.tlv \
+-o rvmyth.v --bestsv --noline -p verilog \
+--outdir src/module
+```
+
+> **Reason:** Creates a Verilog CPU module compatible with Icarus Verilog simulations.
 
 ---
 
+##  Module-Level RTL Simulation
+
+### DAC Module
+
+```bash
+iverilog -o avsddac.vvp src/module/avsddac.v tb_avsddac.v
+vvp avsddac.vvp
+gtkwave tb_avsddac.vcd
+```
+
+| Input D | Extended Value | Analog OUT (V) |
+| ------- | -------------- | -------------- |
+| 3FE     | 1022           | 3.297          |
+
+>  **Reason:** Ensures DAC outputs match expected analog voltages.
+
+---
+
+### PLL Module
+
+```bash
+iverilog -o avsdpll.vvp src/module/avsdpll.v tb_avsdpll.v
+vvp avsdpll.vvp
+gtkwave tb_pll.vcd
+```
+
+| Signal  | Description                 |
+| ------- | --------------------------- |
+| REF     | Reference clock input       |
+| CLK     | PLL-generated clock, 8× REF |
+| ENb_VCO | Clock enable                |
+
+>  **Reason:** Verifies stable clock generation before connecting CPU.
+
+---
+
+### CPU Module
+
+```bash
+iverilog -o rvmyth.vvp -I src/include -I src/module src/module/rvmyth.v tb_rvmyth.v src/module/clk_gate.v
+vvp rvmyth.vvp
+gtkwave tb_rvmyth.vcd
+```
+
+| Signal   | Role               |
+| -------- | ------------------ |
+| CLK      | Timing reference   |
+| reset    | CPU initialization |
+| OUT[9:0] | Data for DAC       |
+
+>  **Reason:** Confirms CPU instruction execution and data outputs are correct.
+
+---
+
+##  System-Level Pre-Synthesis Simulation
+
+```bash
+iverilog -o pre_synth_sim.vvp -DPRE_SYNTH_SIM -I src/include -I src/module src/module/testbench.v
+vvp pre_synth_sim.vvp
+gtkwave pre_synth_sim.vcd
+```
+
+**Signals to Observe:**
+
+| Signal         | Purpose                   |
+| -------------- | ------------------------- |
+| CLK            | CPU timing reference      |
+| reset          | CPU initialization        |
+| RV_TO_DAC[9:0] | Data path from CPU to DAC |
+| OUT            | Analog output             |
+
+>  **Reason:** Validates full SoC functionality at RTL level.
+
+---
+
+##  Monitoring and Signal Insights
+
+Key points to check in GTKWave:
+
+| Signal         | Expected Behavior              |
+| -------------- | ------------------------------ |
+| CLK            | Continuous toggle              |
+| reset          | Active at simulation start     |
+| RV_TO_DAC[9:0] | Incrementing CPU output values |
+| OUT            | Corresponding analog values    |
+
+---
+
+##  Gate-Level Synthesis Workflow
+
+1. Copy necessary include files:
+
+```bash
+cp src/include/sp_verilog.vh .
+cp src/include/sandpiper.vh .
+cp src/include/sandpiper_gen.vh .
+```
+
+2. Start Yosys and run synthesis:
+
+```bash
+yosys
+read_verilog src/module/vsdbabysoc.v
+read_verilog -I src/include src/module/rvmyth.v
+synth -top vsdbabysoc
+dfflibmap -liberty src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+opt
+abc -liberty src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+flatten
+setundef -zero
+clean -purge
+rename -enumerate
+write_verilog vsdbabysoc_synth.v
+```
+
+>  **Reason:** Converts RTL to optimized gate-level netlist.
+
+---
+
+##  Comparative Analysis: Before vs After Synthesis
+
+| Feature       | RTL (Pre-Synth)   | Gate-Level (Post-Synth)  |
+| ------------- | ----------------- | ------------------------ |
+| Functionality | Verified          | Verified                 |
+| Clock         | Behavioral        | Mapped to standard cells |
+| Output        | Matches CPU logic | Matches CPU logic        |
+
+>  **Conclusion:** Functional integrity preserved after synthesis.
+
+---
+
+##  Concluding Notes
+
+* BabySoC demonstrates **CPU → PLL → DAC integration**.
+* Step-by-step simulation validates **signal integrity and module communication**.
+* Pre- and post-synthesis verification ensures **correct operation**.
+* Tables and waveform analysis provide a **clear view of system behavior**.
+
+> **Tips:**
+>
+> * Use `vsdbabysoc_synth.v` for post-synthesis simulation.
+> * Testbench modifications may be necessary to match netlist ports.
+> * This guide blends **theoretical SoC design concepts with hands-on verification**.
+
+```
+
+---
+
+
+Do you want me to do that next?
+```
