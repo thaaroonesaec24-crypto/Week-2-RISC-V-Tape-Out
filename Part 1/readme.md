@@ -10,23 +10,18 @@
 
 ##  Table of Contents
 
-* [What is a System-on-Chip (SoC)?](#-what-is-a-system-on-chip-soc)
-* [Components of a Typical SoC](#-components-of-a-typical-soc)
-* [Challenges of SoC Design](#-challenges-of-soc-design)
-* [Types of SoCs](#-types-of-socs)
-* [SoC Design Flow](#-soc-design-flow)
-* [Popular Examples of SoCs](#-popular-examples-of-socs)
-* [VSD BabySoC](#-vsd-babysoc)
 
-  * [Key Features](#key-features)
-  * [Components of VSDBabySoC](#components-of-vsdbabysoc)
 
-    * [RVMYTH Processor](#rvmyth-processor)
-    * [8× PLL (Phase-Locked Loop)](#8x-pll-phase-locked-loop)
-    * [10-bit DAC (Digital-to-Analog-Converter)](#10-bit-dac-digital-to-analog-converter)
-* [Why BabySoC is a Simplified Model](#-why-babysoc-is-a-simplified-model)
-* [Role of Functional Modeling](#-role-of-functional-modelling)
-* [Summary](#-summary)
+* [What is a System-on-Chip (SoC)?](#what-is-a-system-on-chip-soc)
+* [Components of a Typical SoC](#components-of-a-typical-soc)
+* [Challenges of SoC Design](#challenges-of-soc-design)
+* [Types of SoCs](#types-of-socs)
+* [SoC Design Flow](#soc-design-flow)
+* [Popular Examples of SoCs](#popular-examples-of-socs)
+* [VSD BabySoC](#vsd-babysoc)
+* [Why BabySoC is a Simplified Model](#why-babysoc-is-a-simplified-model)
+* [Role of Functional Modelling](#role-of-functional-modelling)
+  
 
 ---
 
