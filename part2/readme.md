@@ -1,4 +1,3 @@
-Got it! We can **replace “Theory” with explanatory sentences** or context without explicitly labeling it as theory. Here’s your README section revised with explanations added naturally:
 
 ---
 
