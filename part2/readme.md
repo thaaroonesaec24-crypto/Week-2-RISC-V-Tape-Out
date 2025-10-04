@@ -1,21 +1,21 @@
 
-Perfect 👍 — here’s a **professionally styled and detailed Markdown version** of your
 
-## 🧠 *“BabySoC Functional Overview”*
+
+##  *“BabySoC Functional Overview”*
 
 with a short intro, clear structure, and only the main topics in the Table of Contents.
 
 ---
 
-# 🧩 BabySoC Functional Overview
+#  BabySoC Functional Overview
 
-### 📘 About
+###  About
 
 This document provides a functional overview of the **VSDBabySoC**, a compact open-source **RISC-V–based System on Chip (SoC)**. It explains the design objectives, architecture, and functionality of its key components — **RVMYTH**, **PLL**, and **DAC** — as well as their roles in system integration and simulation.
 
 ---
 
-## 📑 Table of Contents
+##  Table of Contents
 
 1. [Introduction to VSDBabySoC](#introduction-to-vsdbabysoc)
 2. [System on Chip (SoC) Overview](#system-on-chip-soc-overview)
@@ -31,7 +31,7 @@ This document provides a functional overview of the **VSDBabySoC**, a compact op
 
 ---
 
-## 1️⃣ Introduction to VSDBabySoC
+##  Introduction to VSDBabySoC
 
 The **VSDBabySoC** is a small yet powerful SoC designed for educational and research purposes.
 Its goal is to **test three open-source IP cores** — a RISC-V CPU, PLL, and DAC — and analyze their behavior when integrated into a single silicon platform.
@@ -45,7 +45,7 @@ Its goal is to **test three open-source IP cores** — a RISC-V CPU, PLL, and DA
 
 ---
 
-## 2️⃣ System on Chip (SoC) Overview
+##  System on Chip (SoC) Overview
 
 A **System on Chip (SoC)** combines multiple functional components on a single silicon die.
 These components, called **IP cores**, include processors, memory blocks, communication interfaces, and analog peripherals.
@@ -60,9 +60,9 @@ In the BabySoC, digital processing (RVMYTH) is paired with analog timing (PLL) a
 
 ---
 
-## 3️⃣ Core Components
+##  Core Components
 
-### 🧮 RVMYTH Microprocessor
+###  RVMYTH Microprocessor
 
 * **Type:** 32-bit RISC-V educational core
 * **Function:** Executes instructions and processes data
@@ -76,7 +76,7 @@ These values are forwarded to the DAC, which produces a corresponding analog wav
 
 ---
 
-### ⏱️ Phase-Locked Loop (PLL)
+### Phase-Locked Loop (PLL)
 
 * **Function:** Generates a stable, high-frequency clock signal
 * **Multiplier:** 8× — means output clock = 8 × input clock
@@ -88,7 +88,7 @@ This ensures high-speed operation and synchronization among all modules.
 
 ---
 
-### 🎚️ Digital-to-Analog Converter (DAC)
+### Digital-to-Analog Converter (DAC)
 
 * **Resolution:** 10-bit
 * **Function:** Converts digital signals from RVMYTH into analog voltages
@@ -99,7 +99,7 @@ If `r17` = 512 (binary `10 0000 0000`), DAC outputs an analog voltage at ~50% of
 
 ---
 
-## 4️⃣ Functional Flow
+##  Functional Flow
 
 The internal functional flow of BabySoC can be summarized as follows:
 
@@ -118,11 +118,11 @@ The internal functional flow of BabySoC can be summarized as follows:
 
 ---
 
-## 5️⃣ Simulation and Verification
+##  Simulation and Verification
 
 The BabySoC design can be simulated using **Icarus Verilog** and **GTKWave**.
 
-### 🧩 Pre-Synthesis Simulation
+###  Pre-Synthesis Simulation
 
 * Tests the logical correctness of the RTL code
 * Run using `iverilog` before synthesis
@@ -135,7 +135,7 @@ iverilog -o output/pre_synth_sim/pre_synth_sim.out -DPRE_SYNTH_SIM -I src/includ
 ./output/pre_synth_sim/pre_synth_sim.out
 ```
 
-### 📊 GTKWave Visualization
+###  GTKWave Visualization
 
 Open the generated VCD file:
 
@@ -154,7 +154,7 @@ gtkwave output/pre_synth_sim/pre_synth_sim.vcd
 
 ---
 
-## 6️⃣ Applications and Learning Scope
+##  Applications and Learning Scope
 
 * Ideal for **students** learning SoC design and verification
 * Helps understand **digital–analog integration**
@@ -164,12 +164,10 @@ gtkwave output/pre_synth_sim/pre_synth_sim.vcd
 
 ---
 
-## 7️⃣ Summary
+##  Summary
 
 The **VSDBabySoC** is a foundational educational project demonstrating the integration of digital (RVMYTH), analog (DAC), and clocking (PLL) systems on a single chip.
 It provides a practical and open-source environment for exploring **SoC design, simulation, and verification** — bridging the gap between **theory and real hardware behavior**.
 
 ---
 
-Would you like me to add a **“Project Directory Overview”** section (with folder and file structure in a clean table)?
-It’ll make the document look more complete for GitHub.
