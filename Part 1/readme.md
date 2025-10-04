@@ -55,7 +55,7 @@ A well-designed SoC harmonizes **computation**, **memory**, **communication**, a
 
 ---
 
-### 2️⃣ Memory
+###  Memory
 
 | Type                          | Description                                   | Example Usage      |
 | ----------------------------- | --------------------------------------------- | ------------------ |
@@ -66,7 +66,7 @@ A well-designed SoC harmonizes **computation**, **memory**, **communication**, a
 
 ---
 
-### 3️⃣ Peripherals
+###  Peripherals
 
 Peripherals extend the SoC’s capabilities to communicate and interact with the external world.
 
@@ -79,7 +79,7 @@ Peripherals extend the SoC’s capabilities to communicate and interact with the
 
 ---
 
-### 4️⃣ Interconnect
+###  Interconnect
 
 The **interconnect** links all subsystems.
 
@@ -91,7 +91,7 @@ The **interconnect** links all subsystems.
 
 ---
 
-## ⚙️ Challenges of SoC Design
+##  Challenges of SoC Design
 
 | Challenge                     | Description                                       |
 | ----------------------------- | ------------------------------------------------- |
@@ -105,7 +105,7 @@ The **interconnect** links all subsystems.
 
 ---
 
-## 🧮 Types of SoCs
+##  Types of SoCs
 
 | Type                                | Description                                        | Examples                 | Applications          |
 | ----------------------------------- | -------------------------------------------------- | ------------------------ | --------------------- |
@@ -115,7 +115,7 @@ The **interconnect** links all subsystems.
 
 ---
 
-## 🏗️ SoC Design Flow
+##  SoC Design Flow
 
 | Stage                               | Description                            |
 | ----------------------------------- | -------------------------------------- |
