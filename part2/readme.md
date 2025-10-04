@@ -1,5 +1,5 @@
 
-````markdown
+
 #  BabySoC: Functional Verification and Hands-on Modelling
 
 This guide demonstrates the **hands-on simulation and verification of the BabySoC system-on-chip**, providing step-by-step instructions for functional testing, waveform analysis, and post-synthesis validation. It is intended for users aiming to **bridge theoretical SoC concepts with practical implementation**.
@@ -45,7 +45,7 @@ BabySoC is a **miniature educational SoC** integrating:
 1. Navigate to your workspace:
 
 ```bash
-cd ~/Documents/Verilog/Labs
+cd ~/home/vboxuser/VLSI
 ````
 
 2. Clone the source repository:
@@ -55,6 +55,7 @@ git clone https://github.com/manili/VSDBabySoC.git
 cd VSDBabySoC
 ls
 ```
+![modulesused](https://github.com/thaaroonesaec24-crypto/Week-2-RISC-V-Tape-Out/blob/main/images/modules%20used.png)
 
 >  **Reason:** Ensures all required modules, testbenches, and libraries are available locally.
 
@@ -66,21 +67,18 @@ Project layout:
 
 ```
 VSDBabySoC/
-├── LICENSE
-├── README.md
 ├── src/
-│   ├── module/
-│   │   ├── avsddac.v
-│   │   ├── avsdpll.v
-│   │   ├── rvmyth.tlv
-│   │   └── vsdbabysoc.v
 │   ├── include/
 │   │   ├── sandpiper.vh
-│   │   └── sandpiper_gen.vh
-│   └── gls_model/
-│       ├── sky130_fd_sc_hd.v
-│       └── primitives.v
-└── testbench.v
+│   │   └── other header files...
+│   ├── module/
+│   │   ├── vsdbabysoc.v      # Top-level module integrating all components
+│   │   ├── rvmyth.v          # RISC-V core module
+│   │   ├── avsdpll.v         # PLL module
+│   │   ├── avsddac.v         # DAC module
+│   │   └── testbench.v       # Testbench for simulation
+└── output/
+└── compiled_tlv/         # Holds compiled intermediate files if needed
 ```
 
 | Module           | Input Signals                              | Output Signals | Description                        |
@@ -91,28 +89,45 @@ VSDBabySoC/
 | **vsdbabysoc.v** | reset, VCO_IN, ENb_CP, ENb_VCO, REF, VREFH | OUT            | Top-level SoC integration          |
 
 >  **Reason:** Understanding the structure helps with compilation and simulation planning.
-
 ---
-
-##  Converting TL-Verilog CPU Core
+##  Converting TL-Verilog CPU Core verilog files
 
 RVMYTH is written in **TL-Verilog** and needs to be converted to standard Verilog:
 
-1. Install dependencies:
-
-```bash
-sudo apt install iverilog gtkwave python3-pip git
-pip3 install sandpiper-saas pyyaml click
+# Step 1: Install python3-venv (if not already installed)
 ```
-
-2. Generate Verilog from TL-Verilog:
-
-```bash
-python3 -m sandpiper \
--i src/module/rvmyth.tlv \
--o rvmyth.v --bestsv --noline -p verilog \
---outdir src/module
+sudo apt update
+sudo apt install python3-venv python3-pip
 ```
+* sudo apt update → Updates the local package index to ensure you install the latest versions of software.
+
+* sudo apt install python3-venv python3-pip → Installs:
+  
+python3-venv: Allows you to create isolated Python environments (virtual environments) so your project dependencies don’t interfere with system-wide Python packages.       
+python3-pip: Python package manager used to install Python libraries like sandpiper-saas.
+  
+# Step 2: Create and activate a virtual environment
+```
+cd ~/VLSI/VSDBabySoC/
+python3 -m venv sp_env
+source sp_env/bin/activate
+```
+* cd ~/VLSI/VSDBabySoC/ → Navigate to your project directory.
+
+* python3 -m venv sp_env → Creates a virtual environment named sp_env inside your project. This isolates Python packages from your system Python.
+
+* source sp_env/bin/activate → Activates the virtual environment. After activation, all Python packages installed using pip will go into this environment rather than the global system Python.
+
+✅ Why: Prevents dependency conflicts with other projects or system Python. It’s a best practice when working with specialized Python tools like SandPiper.
+# Step 3: Install SandPiper-SaaS inside the virtual environment
+```
+pip install pyyaml click sandpiper-saas
+```
+# Step 4: Convert rvmyth.tlv to Verilog
+```
+sandpiper-saas -i ./src/module/*.tlv -o rvmyth.v --bestsv --noline -p verilog --outdir ./src/module/
+```
+.tlv File is Converted into .v Flie
 
 > **Reason:** Creates a Verilog CPU module compatible with Icarus Verilog simulations.
 
@@ -123,10 +138,12 @@ python3 -m sandpiper \
 ### DAC Module
 
 ```bash
-iverilog -o avsddac.vvp src/module/avsddac.v tb_avsddac.v
+iverilog -o /home/vboxuser/VLSI/VSDBabySoC/output/avsddac.vvp /home/vboxuser/VLSI/VSDBabySoC/src/module/avsddac.v /home/vboxuser/VLSI/VSDBabySoC/src/module/tb_avsddac.v
 vvp avsddac.vvp
 gtkwave tb_avsddac.vcd
 ```
+
+![DAC Module RTL Simulation](https://github.com/thaaroonesaec24-crypto/Week-2-RISC-V-Tape-Out/blob/main/images/gtkwave%20avsddac.vvp.png)
 
 | Input D | Extended Value | Analog OUT (V) |
 | ------- | -------------- | -------------- |
@@ -143,7 +160,7 @@ iverilog -o avsdpll.vvp src/module/avsdpll.v tb_avsdpll.v
 vvp avsdpll.vvp
 gtkwave tb_pll.vcd
 ```
-
+![PLL MODULe](https://github.com/thaaroonesaec24-crypto/Week-2-RISC-V-Tape-Out/blob/main/images/gtk%20wave%20avsdpll.v.png)
 | Signal  | Description                 |
 | ------- | --------------------------- |
 | REF     | Reference clock input       |
@@ -161,7 +178,7 @@ iverilog -o rvmyth.vvp -I src/include -I src/module src/module/rvmyth.v tb_rvmyt
 vvp rvmyth.vvp
 gtkwave tb_rvmyth.vcd
 ```
-
+![rvmyth.v module ](https://github.com/thaaroonesaec24-crypto/Week-2-RISC-V-Tape-Out/blob/main/images/gtkwave%20tb_rvmyth.vcd.png)
 | Signal   | Role               |
 | -------- | ------------------ |
 | CLK      | Timing reference   |
@@ -179,7 +196,7 @@ iverilog -o pre_synth_sim.vvp -DPRE_SYNTH_SIM -I src/include -I src/module src/m
 vvp pre_synth_sim.vvp
 gtkwave pre_synth_sim.vcd
 ```
-
+![presynthesis simulation]()
 **Signals to Observe:**
 
 | Signal         | Purpose                   |
@@ -263,8 +280,6 @@ write_verilog vsdbabysoc_synth.v
 > * This guide blends **theoretical SoC design concepts with hands-on verification**.
 
 ```
-
----
 
 
 Do you want me to do that next?
