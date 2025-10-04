@@ -279,6 +279,9 @@ rename -enumerate
 ```
 write_verilog vsdbabysoc_synth.v
 ```
+| Command                            | Purpose                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `write_verilog vsdbabysoc_synth.v` | Exports the synthesized netlist to a Verilog file for post-synthesis simulation or further processing. |
 
 >  **Reason:** Converts RTL to optimized gate-level netlist.
 
