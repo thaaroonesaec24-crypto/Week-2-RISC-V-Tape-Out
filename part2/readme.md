@@ -192,11 +192,11 @@ gtkwave tb_rvmyth.vcd
 ##  System-Level Pre-Synthesis Simulation
 
 ```bash
-iverilog -o pre_synth_sim.vvp -DPRE_SYNTH_SIM -I src/include -I src/module src/module/testbench.v
+
 vvp pre_synth_sim.vvp
 gtkwave pre_synth_sim.vcd
 ```
-![presynthesis simulation]()
+![presynthesis simulation](https://github.com/thaaroonesaec24-crypto/Week-2-RISC-V-Tape-Out/blob/main/images/GTKwave%20-%20pre_synth_sim.png)
 **Signals to Observe:**
 
 | Signal         | Purpose                   |
@@ -226,6 +226,13 @@ Key points to check in GTKWave:
 ##  Gate-Level Synthesis Workflow
 
 1. Copy necessary include files:
+  The following cp commands copy essential header files from the src/include directory into the working directory. These include:
+
+* sp_verilog.vh – contains Verilog definitions and macros
+
+* sandpiper.vh – holds integration-related definitions for SandPiper
+
+* sandpiper_gen.vh – may include auto-generated or tool-generated parameters
 
 ```bash
 cp src/include/sp_verilog.vh .
@@ -241,12 +248,35 @@ read_verilog src/module/vsdbabysoc.v
 read_verilog -I src/include src/module/rvmyth.v
 synth -top vsdbabysoc
 dfflibmap -liberty src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+```
+```
 opt
 abc -liberty src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+```
+| Step        | Purpose                                                                                     |
+|------------|---------------------------------------------------------------------------------------------|
+| strash     | Structural hashing (reduces logic redundancy)                                              |
+| scorr      | Sequential sweeping for redundancy removal                                                 |
+| ifraig     | Incremental FRAIGing (logic equivalence checking and optimization)                        |
+| retime;{D} | Move registers across combinational logic to optimize timing                               |
+| strash     | Re-run structural hashing after retiming                                                   |
+| dch,-f     | Delay-aware combinational optimization with fast mode                                       |
+| map,-M,1,{D} | Map logic to gates minimizing area (-M,1) and retime-aware ({D})                          |
+
+```
 flatten
 setundef -zero
 clean -purge
 rename -enumerate
+```
+| Command          | Purpose / Usage                                                                                  |
+|-----------------|--------------------------------------------------------------------------------------------------|
+| flatten          | Flattens the entire design hierarchy into a single-level netlist.                               |
+| setundef -zero   | Replaces all undefined (x) logic values with logical 0 to avoid simulation issues.              |
+| clean -purge     | Removes all unused wires, cells, and modules; -purge makes it more aggressive.                  |
+| rename -enumerate| Renames internal wires and cells to unique, numbered names for consistency.                     |
+
+```
 write_verilog vsdbabysoc_synth.v
 ```
 
@@ -254,6 +284,13 @@ write_verilog vsdbabysoc_synth.v
 
 ---
 
+## Post Synthesis Simulation
+```
+iverilog -o /home/vboxuser/VLSI/VSDBabySoC/output/synth/vsdbabysoc.synth.v -DPOST_SYNTH_SIM -DFUNCTIONAL -DUNIT_DELAY=#1 -I /home/vboxuser/VLSI/VSDBabySoC/src/include -I /home/vboxuser/VLSI/VSDBabySoC/src/module -I  /home/vboxuser/VLSI/VSDBabySoC/src/gls_model /home/vboxuser/VLSI/VSDBabySoC/src/module/testbench.v
+vvp vsdbabysoc_synth.vvp
+gtkwave post_synth_sim.vcd 
+```
+![post synthesis simulation](https://github.com/thaaroonesaec24-crypto/Week-2-RISC-V-Tape-Out/blob/main/images/postsyth%20vsdbaby.png)
 ##  Comparative Analysis: Before vs After Synthesis
 
 | Feature       | RTL (Pre-Synth)   | Gate-Level (Post-Synth)  |
@@ -279,8 +316,4 @@ write_verilog vsdbabysoc_synth.v
 > * Testbench modifications may be necessary to match netlist ports.
 > * This guide blends **theoretical SoC design concepts with hands-on verification**.
 
-```
-
-
-Do you want me to do that next?
 ```
